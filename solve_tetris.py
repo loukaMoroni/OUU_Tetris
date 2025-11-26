@@ -100,8 +100,6 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
                     for (act, ns, prob) in transitions.get(s, []):
                         if act != a:
                             continue
-                        # --- CORRECTION ICI ---
-                        # Utiliser .get(ns, 0.0) au lieu de [ns] pour éviter le KeyError
                         exp += prob * V.get(ns, 0.0) 
                         # ----------------------
                     val = r + gamma * exp
@@ -129,15 +127,14 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
             for (act, ns, prob) in transitions.get(s, []):
                 if act != a:
                     continue
-                # --- CORRECTION ICI AUSSI ---
                 exp += prob * V.get(ns, 0.0)
-                # ----------------------------
             val = r + gamma * exp
             if val > best_val:
                 best_val = val
                 best_a = a
         policy[s] = best_a
     return V, policy
+
 # -------------------------
 # Simulate policy
 # -------------------------
