@@ -1,3 +1,4 @@
+#BabyTetris.py
 class BabyTetris():
     discount_factor: float 
     initial_state: int
@@ -38,14 +39,7 @@ class BabyTetris():
 
     # Return all states of this MDP
     def get_states(self):
-        """ 
-        The states are represented as an integer from 0 to 2**16
-        each bit of th integer representing a cell in the baby tetris grid 
-        the bit being set to 1 meaning that a block is present in the cell and 0 otherwise.
-        And another integer to represent the nex piece about to fall
-
-        this allow us, if we read the integer in hexadecimal to see each digit as a line. 
-        One of the digits being F meaning the line is full 
+        """Generate all possible states of the MDP.
         """
         return ((g, p) for g in range(0x10000) for p in (0,1))
 
@@ -80,6 +74,7 @@ class BabyTetris():
         return grid & 0xFFFF
 
     def get_transitions(self, state, action):
+        """Return list of (next_state, prob) pairs for this state and action."""
         if self.is_terminal(state):
             return [(state,1.0)]
         new_grid,failed=self.compute_grid(state,action)
@@ -91,7 +86,7 @@ class BabyTetris():
 
 
     def lower_piece(self, grid, piece, max_drop):
-        
+        """Lower the piece until it collides or reaches max drop."""
         piece_on_grid = piece
         row=0
         # while the piece doesn't intersect an existing bloc or go out of the grid
@@ -110,6 +105,7 @@ class BabyTetris():
    
     
     def compute_grid(self, state, action):
+        """Compute the new grid after placing the piece for the given action."""
         # Place piece,apply drop logic
         grid,piece_type=state
         piece = self.actions[piece_type][action]
@@ -129,6 +125,7 @@ class BabyTetris():
 
 
     def get_reward(self, state, action):
+        """Return the reward for taking this action in this state."""
         rewards = (0, 1, 3, 6)
         grid,failed = self.compute_grid(state, action)
         if failed:
@@ -147,6 +144,7 @@ class BabyTetris():
 
     # Return true if and only if state is a terminal state of this MDP 
     def is_terminal(self, state):
+        """A state is terminal if the grid is full at the top line."""
         # grid, _ = state
         # return (grid & 0xF000) != 0
         return False

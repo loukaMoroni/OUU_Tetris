@@ -1,31 +1,12 @@
+#solve_tetris.py
 import random
 import collections
 import math
 from BabyTetris import BabyTetris
 
 # ---------------------------------------------------------
-# NOTE ABOUT BFS (Breadth-First Search)
+#BFS (Breadth-First Search)
 # ---------------------------------------------------------
-# This BFS is NOT part of the MDP theory taught in class.
-# It is NOT required by the course and it is NOT a standard 
-# component of Value Iteration or Policy Iteration.
-#
-# Why do we use it here?
-# ----------------------
-# In Baby Tetris, the total theoretical state space is:
-#     4x4 grid = 16 bits = 65 536 possible grids
-#     each combined with 2 possible next pieces
-#     → 131 072 total states
-#
-# However, most of these states are impossible to reach 
-# by actually playing the game (blocked patterns, illegal shapes, 
-# unreachable configurations, etc.).
-#
-# BFS is therefore used ONLY as a PRACTICAL optimization:
-#    - it starts from the initial state,
-#    - explores only states that can actually be reached by playing,
-#    - and ignores the huge amount of unreachable states.
-#
 # This makes Value Iteration MUCH faster in practice.
 # Again: this is a practical engineering trick, 
 # NOT part of the theoretical definition of an MDP.
@@ -74,8 +55,8 @@ def build_reachable_mdp(env: BabyTetris, max_states: int = 200000):
 # -------------------------
 def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters=10000):
     """
-    Value iteration sur l'ensemble reachable.
-    Retourne V (dict state->value) et policy (dict state->best_action_index or None).
+    Value iteration on reachable set.
+    Return V (dict state->value) and policy (dict state->best_action_index or None).
     """
     if gamma is None:
         gamma = env.get_discount_factor()
@@ -90,6 +71,7 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
         delta = 0.0
         for s in states:
             if env.is_terminal(s):
+                
                 v_new = 0.0
             else:
                 best_val = -math.inf
@@ -101,29 +83,31 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
                         if act != a:
                             continue
                         exp += prob * V.get(ns, 0.0) 
-                        # ----------------------
                     val = r + gamma * exp
                     if val > best_val:
                         best_val = val
                 v_new = best_val if best_val != -math.inf else 0.0
             delta = max(delta, abs(V[s] - v_new))
             V[s] = v_new
-        # critère d'arrêt
+        # stopping condition
         if delta < theta:
             print(f"Value iteration converged at iter {it} (delta={delta})")
             break
 
-    # extraction de politique déterministe
+    #extract deterministic policy
     policy = {}
+    # For each state, choose the best action
     for s in states:
         if env.is_terminal(s):
             policy[s] = None
             continue
         best_a = None
         best_val = -math.inf
+        # For each action, compute its value
         for a in env.get_actions(s):
             r = rewards.get((s, a), 0.0)
             exp = 0.0
+            # sum over transitions for this state-action
             for (act, ns, prob) in transitions.get(s, []):
                 if act != a:
                     continue
@@ -140,9 +124,8 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
 # -------------------------
 def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=None, render=False):
     """
-    Simule la politique donnée `policy` sur `episodes` épisodes.
-    Retourne la liste des retours discountés pour chaque épisode.
-    Si policy[state] is None => episode terminal, on arrête.
+    Simulate the given policy for a number of episodes.
+    Return the list of returns (one per episode).
     """
     if seed is not None:
         random.seed(seed)
@@ -152,7 +135,7 @@ def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=No
 
     for ep in range(episodes):
         state = env.get_initial_state()
-        env.state = state  # synchronise l'env si nécessaire
+        env.state = state  
         G = 0.0
         t = 0
         trajectory = []
@@ -197,14 +180,14 @@ def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=No
     return returns
 
 # -------------------------
-# Exemple d'utilisation
+# Usage example
 # -------------------------
 if __name__ == "__main__":
     env = BabyTetris(discount=0.95)
     print("Initial state:", env.get_initial_state())
 
     print("Exploration des états atteignables (BFS)...")
-    mdp = build_reachable_mdp(env, max_states=20000)
+    mdp = build_reachable_mdp(env, max_states=200000)
     print("Nombre d'états atteignables:", len(mdp['states']))
 
     print("Lancement de la value iteration...")
@@ -218,3 +201,6 @@ if __name__ == "__main__":
     rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=True)
     print("Retours par épisode :", rets)
     print("Moyenne retour :", sum(rets)/len(rets))
+
+# Disable rendering to prevent console buffer overflow and read the initial stats (BFS count, V_init)
+rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=False) 
