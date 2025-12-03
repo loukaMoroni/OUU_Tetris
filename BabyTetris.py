@@ -86,7 +86,8 @@ class BabyTetris():
 
 
     def lower_piece(self, grid, piece, max_drop):
-        """Lower the piece until it collides or reaches max drop."""
+        """Lower the piece until it collides or reaches max drop.
+         Return the falling piece on the grid and a boolean indicating if placement failed."""
         piece_on_grid = piece
         row=0
         # while the piece doesn't intersect an existing bloc or go out of the grid
@@ -105,16 +106,20 @@ class BabyTetris():
    
     
     def compute_grid(self, state, action):
-        """Compute the new grid after placing the piece for the given action."""
+        """Compute the new grid after placing the piece for the given action.
+        Return the new grid and a boolean indicating if placement failed."""
         # Place piece,apply drop logic
         grid,piece_type=state
+        # we get the piece corresponding to the action
         piece = self.actions[piece_type][action]
+        # determine max drop based on piece type and action
         if piece_type == 1:
             max_drop=3
         elif action < 2:
             max_drop=2
         else:
             max_drop=4
+        # lower the piece
         piece_on_grid,failed=self.lower_piece(grid,piece,max_drop)
         if failed:
             return grid,True

@@ -7,13 +7,6 @@ from BabyTetris import BabyTetris
 # ---------------------------------------------------------
 #BFS (Breadth-First Search)
 # ---------------------------------------------------------
-# This makes Value Iteration MUCH faster in practice.
-# Again: this is a practical engineering trick, 
-# NOT part of the theoretical definition of an MDP.
-#
-# If needed, the MDP can be solved WITHOUT BFS 
-# by running Value Iteration on all 131 072 states.
-# ---------------------------------------------------------
 def build_reachable_mdp(env: BabyTetris, max_states: int = 200000):
     """
     BFS exploration from the initial state to collect:
@@ -22,23 +15,31 @@ def build_reachable_mdp(env: BabyTetris, max_states: int = 200000):
         - the reward model
     """
     start = env.get_initial_state()
+    # queue containing states to explore
     q = collections.deque([start])
+    # States already visited
     visited = {start}
     transitions = {}
     rewards = {}
 
     while q:
+        # the state to explore is at the front of the queue and removed from it
         s = q.popleft()
         transitions[s] = []
+        # for each action possible from this state ,we get the reward and the transitions
         for a in env.get_actions(s):
             r = env.get_reward(s, a)
             rewards[(s, a)] = r
             nexts = env.get_transitions(s, a)
+            # for each possible next state and its probability from state s with action a
             for (ns, prob) in nexts:
+                # we store the transition
                 transitions[s].append((a, ns, prob))
+                # if the next state has not been visited yet , we add it to the queue and to visited
                 if ns not in visited and len(visited) < max_states:
                     visited.add(ns)
                     q.append(ns)
+        # safety check to avoid exploding state spaces
         if len(visited) >= max_states:
             print("WARNING: max_states reached in build_reachable_mdp")
             break
@@ -64,9 +65,8 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
     states = mdp_data['states']
     transitions = mdp_data['transitions']
     rewards = mdp_data['rewards']
-
+    # initialize V(s)=0 for all states
     V = {s: 0.0 for s in states}
-
     for it in range(max_iters):
         delta = 0.0
         for s in states:
@@ -74,15 +74,17 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
                 
                 v_new = 0.0
             else:
-                best_val = -math.inf
+                best_val = -math.inf #best action value
+                # for each action possible from state s
                 for a in env.get_actions(s):
                     r = rewards.get((s, a), 0.0)
                     exp = 0.0
-                    # sum over transitions for this state-action
+                    #for each possible next state and its probability from state s with action a
                     for (act, ns, prob) in transitions.get(s, []):
                         if act != a:
                             continue
                         exp += prob * V.get(ns, 0.0) 
+                    #bellman update
                     val = r + gamma * exp
                     if val > best_val:
                         best_val = val
@@ -96,18 +98,18 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
 
     #extract deterministic policy
     policy = {}
-    # For each state, choose the best action
+
     for s in states:
         if env.is_terminal(s):
             policy[s] = None
             continue
         best_a = None
         best_val = -math.inf
-        # For each action, compute its value
+        #compute value for each action using current V
         for a in env.get_actions(s):
             r = rewards.get((s, a), 0.0)
             exp = 0.0
-            # sum over transitions for this state-action
+            #Expected value over next states
             for (act, ns, prob) in transitions.get(s, []):
                 if act != a:
                     continue
@@ -127,6 +129,7 @@ def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=No
     Simulate the given policy for a number of episodes.
     Return the list of returns (one per episode).
     """
+    # set random seed for reproducibility simulations
     if seed is not None:
         random.seed(seed)
 
@@ -162,8 +165,10 @@ def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=No
                 chosen_ns = nexts[-1][0]  # fallback numerical
 
             reward = env.get_reward(state, a)
+            #update discounted G
             G += (gamma ** t) * reward
 
+            #save trajectory for rendering
             if render:
                 trajectory.append((state, a, reward, chosen_ns))
 
