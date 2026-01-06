@@ -85,46 +85,37 @@ class BabyTetris():
         return[((grid_after,0),0.5),((grid_after,1),0.5)]
 
 
-    def lower_piece(self, grid, piece, max_drop):
-        """Lower the piece until it collides or reaches max drop.
-         Return the falling piece on the grid and a boolean indicating if placement failed."""
+    def lower_piece(self, grid, piece):
         piece_on_grid = piece
-        row=0
-        # while the piece doesn't intersect an existing bloc or go out of the grid
-        while (grid & piece_on_grid) == 0 and row < max_drop:
-            piece_on_grid >>= 4
-            row += 1
-        # collision immediately → impossible to place
-        if row == 0 and (grid & piece_on_grid) != 0:
+
+        while True:
+            # si la pièce touche déjà la dernière ligne, on s'arrête
+            if piece_on_grid & 0x000F:
+                break
+
+            next_piece = piece_on_grid >> 4
+
+            # collision avec la grille existante
+            if (grid & next_piece) != 0:
+                break
+
+            piece_on_grid = next_piece
+
+        if (grid & piece_on_grid) != 0:
             return piece_on_grid, True
 
-        # If collision, back up one row
-        if (grid & piece_on_grid) != 0:
-            piece_on_grid <<= 4
-
         return piece_on_grid, False
-   
-    
+     
     def compute_grid(self, state, action):
-        """Compute the new grid after placing the piece for the given action.
-        Return the new grid and a boolean indicating if placement failed."""
-        # Place piece,apply drop logic
-        grid,piece_type=state
-        # we get the piece corresponding to the action
+        grid, piece_type = state
         piece = self.actions[piece_type][action]
-        # determine max drop based on piece type and action
-        if piece_type == 1:
-            max_drop=3
-        elif action < 2:
-            max_drop=2
-        else:
-            max_drop=4
-        # lower the piece
-        piece_on_grid,failed=self.lower_piece(grid,piece,max_drop)
+
+        piece_on_grid, failed = self.lower_piece(grid, piece)
         if failed:
-            return grid,True
-        new_grid=grid|piece_on_grid
-        return new_grid,False
+            return grid, True
+
+        new_grid = grid | piece_on_grid
+        return new_grid, False
 
     
 
@@ -150,9 +141,9 @@ class BabyTetris():
     # Return true if and only if state is a terminal state of this MDP 
     def is_terminal(self, state):
         """A state is terminal if the grid is full at the top line."""
-        # grid, _ = state
-        # return (grid & 0xF000) != 0
-        return False
+        grid, _ = state
+        return (grid & 0xF000) != 0
+        # return False
     
     # Return the discount factor for this MDP
     def get_discount_factor(self):

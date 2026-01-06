@@ -207,5 +207,5 @@ if __name__ == "__main__":
     print("Retours par épisode :", rets)
     print("Moyenne retour :", sum(rets)/len(rets))
 
-# Disable rendering to prevent console buffer overflow and read the initial stats (BFS count, V_init)
-rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=False) 
+    # Disable rendering to prevent console buffer overflow and read the initial stats (BFS count, V_init)
+    #rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=False) 
