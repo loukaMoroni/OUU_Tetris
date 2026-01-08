@@ -1,6 +1,6 @@
 # main_stochastic.py
 """
-Programme principal pour la Question 2.
+Programme principal à exécuter pour la Question 2.
 """
 
 from stochastic_solver import StochasticSolver
@@ -13,7 +13,6 @@ def print_header():
     """Affiche l'en-tête du programme."""
     print("="*70)
     print("QUESTION 2: JEU STOCHASTIQUE TETRIS")
-    print("(Réutilisation COMPLÈTE du code Question 1)")
     print("="*70)
 
 def main():
@@ -97,6 +96,19 @@ def main():
     
     # 10. CONCLUSION
     analyzer.print_conclusion(reduction, mdp_reward, total_reward)
+    # 11. EXPORT SIMPLE DES POLITIQUES
+    print("\n" + "="*70)
+    print("EXPORT SIMPLE DES POLITIQUES")
+    print("="*70)
+    
+    # Export Question 2
+    analyzer.export_stochastic_policies_simple(
+        V_stochastic, adv_policy, player_policy,
+        filename="question2_policy.py"
+    )
+        
+    print("✓ Fichiers généré:")
+    print("  - question2_policy.py  (politique jeu stochastique)")
 
 if __name__ == "__main__":
     main()

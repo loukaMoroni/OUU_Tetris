@@ -51,10 +51,44 @@ def build_reachable_mdp(env: BabyTetris, max_states: int = 200000):
     }
 
 
+def export_policy_simple(policy, V=None, filename="policy_q1.txt"):
+    """Exporte la politique MDP dans un format simple et lisible."""
+    
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write("# POLITIQUE OPTIMALE MDP (QUESTION 1)\n")
+        f.write("# Format: (grille_hex, pièce): action\n")
+        f.write("# Pièce: 0=barre, 1=angle\n")
+        f.write("# " + "="*60 + "\n\n")
+        
+        f.write("policy = {\n")
+        
+        # Trier pour une lecture plus facile
+        sorted_items = sorted(policy.items(), key=lambda x: (x[0][0], x[0][1]))
+        
+        for (grid, piece), action in sorted_items:
+            if action is not None:  # Ignorer les états terminaux
+                grid_hex = hex(grid)
+                piece_name = "barre" if piece == 0 else "angle"
+                
+                # Ajouter la valeur si disponible
+                value_info = ""
+                if V and (grid, piece) in V:
+                    value_info = f"  # valeur: {V[(grid, piece)]:.4f}"
+                
+                f.write(f"    ({grid_hex}, {piece}): {action},{value_info}\n")
+        
+        f.write("}\n")
+        
+        # Statistiques
+        f.write(f"\n# Total: {len([a for a in policy.values() if a is not None])} états non-terminaux\n")
+    
+    print(f"✓ Politique MDP exportée: {filename}")
+    return filename
+
 # -------------------------
 # Value Iteration
 # -------------------------
-def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters=10000):
+def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters=200):
     """
     Value iteration on reachable set.
     Return V (dict state->value) and policy (dict state->best_action_index or None).
@@ -124,7 +158,7 @@ def value_iteration(env: BabyTetris, mdp_data, gamma=None, theta=1e-8, max_iters
 # -------------------------
 # Simulate policy
 # -------------------------
-def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=None, render=False):
+def simulate_policy(env: BabyTetris, policy, episodes=5, max_steps=200, seed=None, render=False):
     """
     Simulate the given policy for a number of episodes.
     Return the list of returns (one per episode).
@@ -184,6 +218,8 @@ def simulate_policy(env: BabyTetris, policy, episodes=10, max_steps=200, seed=No
             print("-"*40)
     return returns
 
+
+
 # -------------------------
 # Usage example
 # -------------------------
@@ -206,6 +242,7 @@ if __name__ == "__main__":
     rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=True)
     print("Retours par épisode :", rets)
     print("Moyenne retour :", sum(rets)/len(rets))
-
-    # Disable rendering to prevent console buffer overflow and read the initial stats (BFS count, V_init)
-    #rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=False) 
+    
+    #Exporter la politique
+    print("\nExport de la politique...")
+    export_policy_simple(policy, V, "question1_policy.py")

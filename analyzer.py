@@ -80,6 +80,57 @@ class PolicyAnalyzer:
         
         return reduction
     
+    def export_stochastic_policies_simple(self, V, adv_policy, player_policy, 
+                                         filename="policy_q2.py"):
+        """Exporte les politiques du jeu stochastique dans un format simple."""
+        
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write("# POLITIQUES OPTIMALES JEU STOCHASTIQUE (QUESTION 2)\n")
+            f.write("# " + "="*70 + "\n\n")
+            
+            # 1. Valeurs (optionnel)
+            f.write("# Valeurs optimales V*(grille)\n")
+            f.write("V = {\n")
+            for grid, value in sorted(V.items()):
+                f.write(f"    {hex(grid)}: {value:.6f},\n")
+            f.write("}\n\n")
+            
+            # 2. Politique adversaire
+            f.write("# Politique adversaire: grille → pièce (0=barre, 1=angle)\n")
+            f.write("adv_policy = {\n")
+            for grid, piece in sorted(adv_policy.items()):
+                if piece is not None:  # Ignorer terminaux
+                    piece_name = "barre" if piece == 0 else "angle"
+                    f.write(f"    {hex(grid)}: {piece},  # {piece_name}\n")
+            f.write("}\n\n")
+            
+            # 3. Politique joueur
+            f.write("# Politique joueur: grille → {barre: action, angle: action}\n")
+            f.write("player_policy = {\n")
+            for grid, actions_dict in sorted(player_policy.items()):
+                if actions_dict:  # Ignorer les dictionnaires vides
+                    f.write(f"    {hex(grid)}: {{\n")
+                    
+                    for piece in [0, 1]:
+                        action = actions_dict.get(piece)
+                        if action is not None:
+                            piece_name = "barre" if piece == 0 else "angle"
+                            f.write(f"        {piece}: {action},  # {piece_name}\n")
+                    
+                    f.write("    },\n")
+            f.write("}\n\n")
+            
+            # 4. Résumé
+            f.write("# " + "="*70 + "\n")
+            f.write(f"# Résumé:\n")
+            f.write(f"# - États totaux: {len(V)}\n")
+            f.write(f"# - Politique adversaire: {len([p for p in adv_policy.values() if p is not None])} états\n")
+            f.write(f"# - Politique joueur: {len(player_policy)} grilles avec actions\n")
+            f.write("# " + "="*70 + "\n")
+        
+        print(f"✓ Politiques jeu stochastique exportées: {filename}")
+        return filename
+
     def print_conclusion(self, reduction, mdp_reward, stochastic_reward):
         """Affiche la conclusion de l'analyse."""
         sim_difference = mdp_reward - stochastic_reward
