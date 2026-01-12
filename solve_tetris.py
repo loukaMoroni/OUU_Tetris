@@ -55,7 +55,7 @@ def export_policy_simple(policy, V=None, filename="policy_q1.txt"):
     """Exporte la politique MDP dans un format simple et lisible."""
     
     with open(filename, 'w', encoding='utf-8') as f:
-        f.write("# POLITIQUE OPTIMALE MDP (QUESTION 1)\n")
+        f.write("# OPTIMAL POLICY MDP (QUESTION 1)\n")
         f.write("# Format: (grille_hex, pièce): action\n")
         f.write("# Pièce: 0=barre, 1=angle\n")
         f.write("# " + "="*60 + "\n\n")
@@ -232,17 +232,17 @@ if __name__ == "__main__":
     print("Nombre d'états atteignables:", len(mdp['states']))
 
     print("Lancement de la value iteration...")
-    V, policy = value_iteration(env, mdp, gamma=env.get_discount_factor(), theta=1e-7)
+    V, policy = value_iteration(env, mdp, gamma=env.get_discount_factor(), theta=1e-8)
     init = env.get_initial_state()
     print("Valeur de l'état initial :", V.get(init))
     print("Meilleure action pour l'état initial :", policy.get(init))
 
-    # Simuler la politique
+    # Simule politic
     print("\nSimulation de la politique optimale (5 épisodes)...")
     rets = simulate_policy(env, policy, episodes=5, max_steps=200, seed=42, render=True)
     print("Retours par épisode :", rets)
     print("Moyenne retour :", sum(rets)/len(rets))
     
-    #Exporter la politique
+    #Export politic
     print("\nExport de la politique...")
     export_policy_simple(policy, V, "question1_policy.py")

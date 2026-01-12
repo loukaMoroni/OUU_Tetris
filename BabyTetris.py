@@ -54,6 +54,11 @@ class BabyTetris():
         #return self.actions[state[1]]
     def clear_full_lines(self, grid):
         """Identify and clear any full 4-bit line."""
+        
+        #line 3: bits 12-15(mask 0xF000)
+        #line 2: bits 8-11(mask 0x0F00)
+        #line 1: bits 4-7(mask 0x00F0)
+        #line 0: bits 0-3(mask 0x000F)
         for shift in (12, 8, 4, 0):
             mask_line = 0xF << shift
             if (grid & mask_line) == mask_line:
