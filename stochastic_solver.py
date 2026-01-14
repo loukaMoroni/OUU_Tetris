@@ -113,22 +113,26 @@ class StochasticSolver:
         """Extrait les politiques optimales à partir des valeurs V."""
         adversary_policy = {}
         player_policy = {}
-        
+        #Parcours de toutes les grilles possibles dans la fonction de valeur V
         for grid in V:
+            #Si le jeu est fini, pas de politique à extraire
             if self.is_terminal_grid(grid):
-                adversary_policy[grid] = None
-                player_policy[grid] = {0: None, 1: None}
+                adversary_policy[grid] = None #l'adversaire ne choisit plus de pièces
+                player_policy[grid] = {0: None, 1: None} #Le joueur ne peut plus jouer
                 continue
             
-            best_piece = None
-            best_val = float('inf')
+            best_piece = None #Meilleure pièce pour l'adversaire
+            best_val = float('inf')#Meilleure valeur associée à la meilleure pièce
             
             for piece in [0, 1]:
-                player_best = -float('inf')
+                player_best = -float('inf') #Meilleure valeur pour le joueur
                 best_action = None
                 
                 if (grid, piece) in actions_map:
+                    #le joueur évalue toutes les actions possibles pour la pièce donnée
                     for action, (next_grid, reward) in actions_map[(grid, piece)]:
+                        #Calcul de la valeur Q: récompense immédiate + valeur future
+                        #Formule: Q=reward + γ * V(next_grid)
                         value = reward + self.discount * V.get(next_grid, 0.0)
                         if value > player_best:
                             player_best = value

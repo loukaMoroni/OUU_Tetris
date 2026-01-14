@@ -1,0 +1,174 @@
+===============================================================================
+                           LEGENDE DES ACTIONS - Baby Tetris
+===============================================================================
+
+Ce document explique la signification de chaque numéro d'action utilisé dans
+les politiques optimales. Il y a 2 types de pièces avec des actions différentes.
+
+===============================================================================
+1. PIÈCE "BARRE" (pièce_type = 0) - 6 ACTIONS
+===============================================================================
+
+La barre est composée de 3 blocs alignés horizontalement ou verticalement.
+
+Action 0:  Barre horizontale, position haute gauche
+           ###.
+           ....
+           ....
+           ....
+
+Action 1:  Barre horizontale, position haute droite  
+           .###
+           ....
+           ....
+           ....
+
+Action 2:  Barre verticale, colonne 0 (gauche)
+           #...
+           #...
+           #...
+           ....
+
+Action 3:  Barre verticale, colonne 1
+           .#..
+           .#..
+           .#..
+           ....
+
+Action 4:  Barre verticale, colonne 2
+           ..#.
+           ..#.
+           ..#.
+           ....
+
+Action 5:  Barre verticale, colonne 3 (droite)
+           ...#
+           ...#
+           ...#
+           ....
+
+===============================================================================
+2. PIÈCE "ANGLE" (pièce_type = 1) - 12 ACTIONS  
+===============================================================================
+
+L'angle est composé de 3 blocs formant un L. Il y a 4 rotations × 3 positions.
+
+--- ROTATION 0 (L normal) ---
+Action 0:  Position gauche          Action 1:  Position centre-gauche
+           .#..                              #...
+           ##..                              ##..
+           ....                              ....
+           ....                              ....
+
+Action 8:  Position droite
+           ...#
+           ..##
+           ....
+           ....
+
+--- ROTATION 1 (L tourné 90° horaire) ---  
+Action 2:  Position gauche          Action 3:  Position centre-gauche
+           ##..                              ##..
+           #...                              .#..
+           ....                              ....
+           ....                              ....
+
+Action 9:  Position centre-droite   Action 10: Position droite
+           ..#.                              ..##
+           ..##                              ..#.
+           ....                              ....
+           ....                              ....
+
+--- ROTATION 2 (L tourné 180°) ---
+Action 4:  Position gauche          Action 5:  Position centre-gauche
+           ..#.                              .#..
+           .##.                              .##.
+           ....                              ....
+           ....                              ....
+
+Action 11: Position droite
+           ..##
+           ...#
+           ....
+           ....
+
+--- ROTATION 3 (L tourné 270°) ---
+Action 6:  Position gauche          Action 7:  Position centre-gauche
+           .##.                              .##.
+           .#..                              ..#.
+           ....                              ....
+           ....                              ....
+
+===============================================================================
+3. COMMENT LIRE LES POLITIQUES
+===============================================================================
+
+EXEMPLE DE POLITIQUE MDP (Question 1):
+--------------------------------------
+policy = {
+    (0x0000, 0): 1,    # Grille vide + BARRE → Action 1 (.###)
+    (0x0000, 1): 4,    # Grille vide + ANGLE → Action 4 (..#.\n.##.)
+    (0x0038, 0): 0,    # Grille 0x38 + BARRE → Action 0 (###.)
+    (0x0038, 1): 2,    # Grille 0x38 + ANGLE → Action 2 (##.\n#..)
+}
+
+EXEMPLE DE POLITIQUE JEU STOCHASTIQUE (Question 2):
+---------------------------------------------------
+adv_policy = {
+    0x0000: 1,         # Pour grille vide, adversaire choisit ANGLE (pièce 1)
+    0x0038: 0,         # Pour grille 0x38, adversaire choisit BARRE (pièce 0)
+}
+
+player_policy = {
+    0x0000: {          # Pour grille vide:
+        0: 5,          #   Si adversaire donne BARRE → Action 5 (...# verticale)
+        1: 1,          #   Si adversaire donne ANGLE → Action 1 (#...\n##..)
+    },
+    0x0038: {          # Pour grille 0x38:
+        0: 0,          #   Si BARRE → Action 0 (###.)
+        1: 2,          #   Si ANGLE → Action 2 (##.\n#..)
+    },
+}
+
+===============================================================================
+4. EXEMPLES CONCRETS DE  RÉSULTATS
+===============================================================================
+
+D'après nos exécutions:
+
+QUESTION 1 (MDP):
+- État initial: (0x0000, 1) → Action 4
+  → Grille vide + ANGLE → Position: ..#.\n.##.
+
+QUESTION 2 (Jeu stochastique):
+- Grille vide (0x0000):
+  * Adversaire choisit: ANGLE (1)
+  * Joueur répond: Action 1 → Position: #...\n##..
+
+- Grille 0x8c:
+  * Adversaire choisit: ANGLE (1)  
+  * Joueur répond: Action 9 → Position: ..#.\n..## (rotation 1, centre-droite)
+
+===============================================================================
+5. NOTES IMPORTANTES
+===============================================================================
+
+1. Les positions montrées sont AVANT la descente automatique.
+   La pièce descend jusqu'à toucher le bas ou d'autres blocs.
+
+2. Notation hexadécimale des grilles:
+   - 0x0000 = grille vide
+   - 0xF000 = ligne du haut pleine (état terminal)
+   - Chaque chiffre hexa = 4 bits = 1 ligne
+
+3. Les actions sont numérotées de façon continue:
+   - BARRE: actions 0-5
+   - ANGLE: actions 0-11
+   Donc Action 4 signifie différentes choses selon la pièce!
+
+4. Pour visualiser une grille hexadécimale:
+   0x8c = binaire 10001100 = 
+           . . . .
+           . . . .  
+           . . . 1
+           . . 1 1

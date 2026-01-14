@@ -83,7 +83,7 @@ def main():
     print(f"Retour MDP: {mdp_reward:.4f}")
     print(f"Retour jeu stochastique: {total_reward:.4f}")
     
-    # 9. ANALYSE DÉTAILLÉE
+    # 9. ANALYSE DETAILLEE
     print("\n" + "="*70)
     print("ANALYSE DÉTAILLÉE")
     print("="*70)

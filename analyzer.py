@@ -1,6 +1,7 @@
 # analyzer.py
 """
 Analyseur des politiques et résultats du jeu stochastique.
+
 """
 
 class PolicyAnalyzer:
@@ -30,7 +31,7 @@ class PolicyAnalyzer:
                     print(f"  Joueur (si pièce={piece_name}): action {action}")
     
     def analyze_adversary_choices(self, adversary_policy):
-        """Analyse la distribution des choix de l'adversaire."""
+        """Analyse  la distribution des choix de l'adversaire."""
         adv_choices = [p for p in adversary_policy.values() if p is not None]
         
         if not adv_choices:
@@ -67,6 +68,7 @@ class PolicyAnalyzer:
     
     def compare_values(self, mdp_value, stochastic_value):
         """Compare les valeurs MDP et stochastique."""
+       
         print(f"\nCOMPARAISON DES VALEURS:")
         print(f"  Valeur MDP (Question 1): {mdp_value:.6f}")
         print(f"  Valeur jeu stochastique (Question 2): {stochastic_value:.6f}")
@@ -82,7 +84,7 @@ class PolicyAnalyzer:
     
     def export_stochastic_policies_simple(self, V, adv_policy, player_policy, 
                                          filename="policy_q2.py"):
-        """Exporte les politiques du jeu stochastique dans un format simple."""
+        """Exporte les politiques du jeu stochastique dans un format txt."""
         
         with open(filename, 'w', encoding='utf-8') as f:
             f.write("# POLITIQUES OPTIMALES JEU STOCHASTIQUE (QUESTION 2)\n")
@@ -95,7 +97,7 @@ class PolicyAnalyzer:
                 f.write(f"    {hex(grid)}: {value:.6f},\n")
             f.write("}\n\n")
             
-            # 2. Politique adversaire
+            # 2. Politique de l'adversaire
             f.write("# Politique adversaire: grille → pièce (0=barre, 1=angle)\n")
             f.write("adv_policy = {\n")
             for grid, piece in sorted(adv_policy.items()):
@@ -104,7 +106,7 @@ class PolicyAnalyzer:
                     f.write(f"    {hex(grid)}: {piece},  # {piece_name}\n")
             f.write("}\n\n")
             
-            # 3. Politique joueur
+            # 3. Politique du joueur
             f.write("# Politique joueur: grille → {barre: action, angle: action}\n")
             f.write("player_policy = {\n")
             for grid, actions_dict in sorted(player_policy.items()):
@@ -128,7 +130,7 @@ class PolicyAnalyzer:
             f.write(f"# - Politique joueur: {len(player_policy)} grilles avec actions\n")
             f.write("# " + "="*70 + "\n")
         
-        print(f"✓ Politiques jeu stochastique exportées: {filename}")
+        print(f" Politiques jeu stochastique exportées: {filename}")
         return filename
 
     def print_conclusion(self, reduction, mdp_reward, stochastic_reward):

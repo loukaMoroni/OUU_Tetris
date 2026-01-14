@@ -1,7 +1,4 @@
 # simulator.py
-"""
-Simulateur pour le jeu stochastique Tetris.
-"""
 
 import random
 from solve_tetris import simulate_policy
@@ -14,11 +11,7 @@ class GameSimulator:
     
     def simulate_game(self, adversary_policy, player_policy, transitions, 
                      max_steps=100, seed=None):
-        """
-        Simule une partie complète avec affichage détaillé.
-        
-        Returns:
-            tuple: (total_discounted, steps, final_grid)
+        """Simule une partie complète avec affichage détaillé.
         """
         if seed is not None:
             random.seed(seed)
@@ -111,7 +104,7 @@ class GameSimulator:
         self.print_grid(next_grid)
         
         if self.is_terminal_grid(next_grid):
-            print("  ⚠️  Terminal!")
+            print("Terminal!")
     
     def _display_final_results(self, steps, total_discounted, final_grid):
         """Affiche les résultats finaux."""

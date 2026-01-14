@@ -2,12 +2,12 @@
                             PROJET BABY TETRIS
 ===============================================================================
 
-Ce projet implémente un Tetris simplifié avec 2 types de pièces et résout
+Ce projet implémente un Tetris simplifié avec 2 types de pièces et résoud
 les problèmes d'optimisation contre un adversaire aléatoire (Question 1)
 et un adversaire optimal (Question 2).
 
 ===============================================================================
-📁 STRUCTURE DES FICHIERS
+STRUCTURE DES FICHIERS
 ===============================================================================
 
 FICHIERS PRINCIPAUX :
@@ -34,12 +34,7 @@ FICHIERS GÉNÉRÉS (après exécution) :
 🚀 COMMENT TESTER
 ===============================================================================
 
-ÉTAPE 1 - VÉRIFICATION DE L'ENVIRONNEMENT :
--------------------------------------------
-> python test_tetris.py
-→ Devrait afficher: état initial, actions possibles, exemple de grille
-
-ÉTAPE 2 - QUESTION 1 (MDP) :
+ÉTAPE 1 - QUESTION 1 (MDP) :
 ----------------------------
 > python solve_tetris.py
 
@@ -49,7 +44,7 @@ RÉSULTATS ATTENDUS :
 - Valeur optimale: ~18.18 (discount 0.95)
 - Génère: question1_policy.py (politique optimale)
 
-ÉTAPE 3 - QUESTION 2 (JEU STOCHASTIQUE) :
+ÉTAPE 2 - QUESTION 2 (JEU STOCHASTIQUE) :
 -----------------------------------------
 > python main_stochastic.py
 
@@ -61,7 +56,7 @@ RÉSULTATS ATTENDUS :
 - Simulation détaillée de 30 étapes
 
 ===============================================================================
-📊 INTERPRÉTATION DES RÉSULTATS
+INTERPRÉTATION DES RÉSULTATS
 ===============================================================================
 
 VALEURS OPTIMALES :
@@ -72,7 +67,7 @@ VALEURS OPTIMALES :
 
 
 ===============================================================================
-🔍 COMMENT LIRE LES FICHIERS DE POLITIQUE
+COMMENT LIRE LES FICHIERS DE POLITIQUE
 ===============================================================================
 
 FICHIER question1_policy.py :
@@ -106,7 +101,7 @@ Exemple:
     }
 
 ===============================================================================
-🧮 NOTATIONS ET CONVENTIONS
+NOTATIONS ET CONVENTIONS
 ===============================================================================
 
 GRILLES (format hexadécimal) :
@@ -140,10 +135,11 @@ RÉCOMPENSES :
 
 DISCOUNT(modifiable):
 ----------
-• γ = 0.95 (valeur future décroît de 5% par étape)
+• γ = 0.95 
+• pour γ =0.99 , changer dans solve_tetris.py 
 
 ===============================================================================
-📈 RÉSULTATS ATTENDUS (RÉSUMÉ)
+RÉSULTATS ATTENDUS
 ===============================================================================
 
 QUESTION 1:
